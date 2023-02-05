@@ -20,7 +20,8 @@ export class ModelvolLabelWidget extends WidgetType {
     let tag = document.createElement("span");
 
     tag.className = 'mv-label ' + typeClass.get(this.label.type);
-    tag.textContent = this.label.tagName.length > 2?this.label.tagName.substring(0,2):this.label.tagName;
+    // tag.textContent = this.label.tagName.length > 2?this.label.tagName.substring(0,2):this.label.tagName;
+    tag.textContent = this.label.tagName
     return tag
   }
 }

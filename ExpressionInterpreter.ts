@@ -59,6 +59,7 @@ function customInterpret(regArray: RegExpExecArray) {
     label.type = 'c';
 
     let list = label.text.substring(2).trim().split(' ')
+    if(list.length <0 || list[0].length == 0)return undefined
     label.tagName = list.length > 0 ? list[0] : ""
     label.title = list.length > 1 ? list[1] : ''
     label.relation = list.length > 2 ? list[2] : ''
