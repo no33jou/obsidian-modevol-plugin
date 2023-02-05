@@ -26,7 +26,6 @@ function getDecoration(doc: Text, selection?: EditorSelection) {
   let select = selection?.main
   let selectFrom = select ? select.from : 0
   let selectTo = select ? select.from : 0
-  console.log(select)
   for (let line of doc.toJSON()) {
     let regMatchL = ExpressionInterpreter.tag_reg.exec(line)
     if (regMatchL == null) {
@@ -48,7 +47,6 @@ function getDecoration(doc: Text, selection?: EditorSelection) {
       widget: new ModelvolLabelWidget(label),
     })
 
-    
     builder.add(from, to, replace)
 
     pos += line.length + 1

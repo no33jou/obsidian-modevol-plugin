@@ -32,6 +32,12 @@ If your plugin does not need CSS, delete this file.
     font-size: var(--tag-size);
     padding: 1px var(--tag-padding-x);
 }
+a.mv-label{
+    text-decoration-line:none;
+    pointer-events:none;
+
+}
+
 .mv-label-active{
     color: var(--heading-formatting);
 }
@@ -41,7 +47,9 @@ If your plugin does not need CSS, delete this file.
     background-color: var(--modevol-d-background-color);
     border-color: var(--modevol-d-color);
 }
-
+.mv-label-d:hover{
+    color: var(--modevol-d-color);
+}
 .mv-label-e {
     color: var(--modevol-e-color);
     background-color: var(--modevol-e-background-color);
