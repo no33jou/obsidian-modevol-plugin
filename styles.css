@@ -6,3 +6,64 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+:root {
+    --modevol-d-color: rgb(75, 153, 211);
+    --modevol-d-background-color: rgba(75, 153, 211, 0.3);
+
+    --modevol-e-color: rgb(205, 82, 85);
+    --modevol-e-background-color: rgba(205, 82, 84, 0.3);
+
+    --modevol-t-color: rgb(235, 171, 55);
+    --modevol-t-background-color: rgba(235, 172, 55, 0.3);
+
+    --modevol-v-color: rgb(85, 114, 241);
+    --modevol-v-background-color: rgba(85, 114, 241, 0.3);
+
+    --modevol-c-color: rgb(201, 201, 201);
+    --modevol-c-background-color: rgba(201, 201, 201, 0.3);
+
+    
+}
+
+.mv-label {
+    border-width: 1px;
+    border-style: solid;
+    border-radius: var(--tag-radius);
+    font-size: var(--tag-size);
+    padding: 1px var(--tag-padding-x);
+}
+.mv-label-active{
+    color: var(--heading-formatting);
+}
+
+.mv-label-d {
+    color: var(--modevol-d-color);
+    background-color: var(--modevol-d-background-color);
+    border-color: var(--modevol-d-color);
+}
+
+.mv-label-e {
+    color: var(--modevol-e-color);
+    background-color: var(--modevol-e-background-color);
+    border-color: var(--modevol-e-color);
+}
+
+.mv-label-t {
+    color: var(--modevol-t-color);
+    background-color: var(--modevol-t-background-color);
+    border-color: var(--modevol-t-color);
+}
+
+.mv-label-v {
+    color: var(--modevol-v-color);
+    background-color: var(--modevol-v-background-color);
+    border-color: var(--modevol-v-color);
+}
+
+.mv-label-c {
+    color: var(--modevol-c-color);
+    background-color: var(--modevol-c-background-color);
+    border-color: var(--modevol-c-color);
+}
+
+.mv-content {}
