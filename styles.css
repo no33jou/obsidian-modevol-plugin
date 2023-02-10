@@ -21,8 +21,6 @@ If your plugin does not need CSS, delete this file.
 
     --modevol-c-color: rgb(201, 201, 201);
     --modevol-c-background-color: rgba(201, 201, 201, 0.3);
-
-    
 }
 
 .mv-label {
@@ -40,6 +38,8 @@ a.mv-label{
 
 .mv-label-active{
     color: var(--heading-formatting);
+    border: 0 none;
+    background-color: rgba(0,0,0,0);
 }
 
 .mv-label-d {
@@ -74,4 +74,14 @@ a.mv-label{
     border-color: var(--modevol-c-color);
 }
 
-.mv-content {}
+.mv-content-d {
+    border-left: 2px solid var(--modevol-d-color);
+}
+.mv-dot-d{
+    padding: 1px var(--tag-padding-x);
+    text-decoration-line:none;
+    pointer-events:none;
+    background-color: var(--modevol-d-background-color);
+    border-radius: var(--tag-size );
+    border: 2px solid var(--modevol-d-color);
+}

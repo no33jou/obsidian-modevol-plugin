@@ -14,14 +14,17 @@ import {
   EditorView,
 } from "@codemirror/view";
 import ExpressionInterpreter from "ExpressionInterpreter";
-import { ModelvolLabelWidget, ModevolLabelActiveWidget } from "ModevolWidget";
+import { Label } from "Label";
+import { ModelvolLabelWidget, ModevolLabelActiveWidget, ModevolTitleActiveWidget } from "ModevolWidget";
 
 
 
 let interpreter = new ExpressionInterpreter()
+export var labels:Label[] = []
 
 function getDecoration(doc: Text, selection?: EditorSelection) {
   const builder = new RangeSetBuilder<Decoration>();
+  var list:Label[] = []
   let pos = 0;
   let select = selection?.main
   let selectFrom = select ? select.from : 0
@@ -37,12 +40,24 @@ function getDecoration(doc: Text, selection?: EditorSelection) {
       pos += line.length + 1
       continue
     }
+    list.push(label)
     let from = pos
     let to = label.type == 'c' ? from + 3 + label.tagName.length : from + 2
-    if (selectFrom > pos - 1 && selectTo < pos + line.length + 1) {
+    let isSelect = selectFrom > pos - 1 && selectTo < pos + line.length + 1;
+    if (label.type == 'c' && isSelect) {
+      let tagMark = Decoration.mark({class:' mv-label-active'})
+      // let tagReplace = Decoration.replace({
+      //   widget: new ModevolLabelActiveWidget(label),
+      // })
+      builder.add(from, to, tagMark)
+      // let contentRe = Decoration.replace({
+      //   widget:new ModevolTitleActiveWidget(label)
+      // })
+      // builder.add(to,pos + line.length,contentRe)
       pos += line.length + 1
       continue
     }
+
     let replace = Decoration.replace({
       widget: new ModelvolLabelWidget(label),
     })
@@ -51,6 +66,7 @@ function getDecoration(doc: Text, selection?: EditorSelection) {
 
     pos += line.length + 1
   }
+  labels = list
   return builder.finish();
 }
 export const labelField = StateField.define<DecorationSet>({
@@ -58,7 +74,8 @@ export const labelField = StateField.define<DecorationSet>({
     return getDecoration(state.doc);
   },
   update(oldState: DecorationSet, transaction: Transaction): DecorationSet {
-    if (!transaction.docChanged || !transaction.newSelection) {
+
+    if (!transaction.docChanged && !transaction.newSelection) {
       return oldState;
     }
     return getDecoration(transaction.state.doc, transaction.newSelection)
@@ -67,11 +84,3 @@ export const labelField = StateField.define<DecorationSet>({
     return EditorView.decorations.from(field);
   },
 });
-
-
-// export const statisticsField = StateField.define<Label>({
-//     create(state): DecorationSet {
-//         console.log(state);
-//         return Decoration.none;
-//       },
-// })
