@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-modevol-plugin",
 	"name": "Modevol Plugin",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"minAppVersion": "0.15.0",
 	"description": "This is a modevol plugin for Obsidian. This plugin for fit modevol style.",
 	"author": "yao",
