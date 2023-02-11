@@ -43,3 +43,4 @@
     Otherwise head to Settings, third-party plugins, make sure safe mode is off and
     enable the plugin from there.
 
+![image](https://user-images.githubusercontent.com/12016782/218239969-4f6687ff-d3f0-4fc3-be78-a2e447864530.png)
