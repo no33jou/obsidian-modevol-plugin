@@ -1,5 +1,5 @@
 # Obsidian Modevol plugin
-### Function：an Obsidian plugin for fit modevol style.
+### Function：an Obsidian plugin for fit [modevol](https://www.modevol.com/) style.
 
 [x] Edit a state field for DETCV label.
 
