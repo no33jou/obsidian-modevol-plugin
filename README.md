@@ -1,5 +1,5 @@
 # Obsidian Modevol plugin
-### Function：Edit an Obsidian plugin for fit modevol style.
+### Function：an Obsidian plugin for fit modevol style.
 
 [x] Edit a state field for DETCV label.
 
@@ -33,4 +33,13 @@
 
 [#c name title relation]
 
+### Installation
+
+-   Download the Latest Release from the Releases section of the GitHub Repository
+-   Extract the plugin folder from the zip to your vault's plugins folder: `<vault>/.obsidian/plugins/`  
+    Note: On some machines the `.obsidian` folder may be hidden. On MacOS you should be able to press `Command+Shift+Dot` to show the folder in Finder.
+-   Reload Obsidian
+-   If prompted about Safe Mode, you can disable safe mode and enable the plugin.
+    Otherwise head to Settings, third-party plugins, make sure safe mode is off and
+    enable the plugin from there.
 
