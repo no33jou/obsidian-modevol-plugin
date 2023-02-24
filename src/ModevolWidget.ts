@@ -1,5 +1,5 @@
 import { EditorView, WidgetType } from "@codemirror/view";
-import { Label } from "Label";
+import { Label } from "./Label";
 // todo: 编辑状态下的样式
 
 let typeClass = new Map([

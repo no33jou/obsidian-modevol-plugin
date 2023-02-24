@@ -1,5 +1,4 @@
-import { Label } from "Label";
-import { text } from "stream/consumers";
+import { Label } from "./Label";
 // modevol 解释器
 
 // todo: 先做效果，做改匹配规则

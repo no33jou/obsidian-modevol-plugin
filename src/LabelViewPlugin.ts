@@ -8,8 +8,8 @@ import {
   ViewUpdate,
   MatchDecorator,
 } from "@codemirror/view";
-import ExpressionInterpreter from "ExpressionInterpreter";
-import { ModelvolLabelWidget, ModevolLabelActiveWidget } from "ModevolWidget";
+import ExpressionInterpreter from "src/ExpressionInterpreter";
+import { ModelvolLabelWidget, ModevolLabelActiveWidget } from "src/ModevolWidget";
 import { editorLivePreviewField } from "obsidian";
 let interpreter = new ExpressionInterpreter()
 let match = new MatchDecorator({

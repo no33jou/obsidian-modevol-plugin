@@ -1,21 +1,43 @@
-import { it } from 'node:test';
-import { App, Editor, MarkdownFileInfo, MarkdownPostProcessorContext, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
-import { labelField, labels } from 'StateField';
-// Remember to rename these classes and interfaces!
-let labelStatusBar:HTMLElement
-export default class ModevolPlugin extends Plugin {
 
+import * as CodeMirror from 'codemirror';
+import { App, Editor, MarkdownFileInfo, MarkdownPostProcessorContext, MarkdownView, Plugin } from 'obsidian';
+import { labelField, labels } from 'src/StateField';
+let labelStatusBar:HTMLElement| null = null
+export default class ModevolPlugin extends Plugin {
 	async onload() {
 		// 添加底部状态栏 
 		const item = this.addStatusBarItem()
 		labelStatusBar = item.createSpan({text:'Modevol'});
-		console.log(labelStatusBar)
-		this.registerEvent(this.app.workspace.on("editor-change", this.editorChange))
 
+		this.registerEvent(this.app.workspace.on('editor-change', this.editorChange))
 		this.registerEditorExtension([labelField])
 		this.registerMarkdownPostProcessor(MarkdownPostProcessor)
-	}
+		
+		this.registerCodeMirror(this.getModeNameFromCodeMirror)
+		
+		this.app.workspace.on('layout-change', () => {
+			
+			console.log('layout-change')
+		  });
 
+		CodeMirror.extendMode('markdown',{
+			token(stream, state) {
+				console.log(stream)
+				console.log(state)
+			   return null 
+			},
+			startState() {
+				
+			},
+		});
+		
+	}
+	getModeNameFromCodeMirror(cm:CodeMirror.Editor){
+		console.log(`codemirror`)
+		console.log(cm)
+		const mode = cm.getMode()
+		console.log(mode)
+	}
 	onunload() {
 
 	}
@@ -60,6 +82,7 @@ export default class ModevolPlugin extends Plugin {
 		if (cNum > 0){
 			content += " 其他 "+cNum
 		}
+		
 		if (labelStatusBar){
 			labelStatusBar.textContent = content
 		}
@@ -108,3 +131,4 @@ function MarkdownPostProcessor(element: HTMLElement, context: MarkdownPostProces
 		}
 	}
 }
+

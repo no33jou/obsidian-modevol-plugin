@@ -22,7 +22,6 @@
 		"typescript": "4.7.4"
 	},
 	"dependencies": {
-		"codemirror": "^6.0.1",
-		"lezer": "^0.13.5"
+		"codemirror": "^5.65.12"
 	}
 }

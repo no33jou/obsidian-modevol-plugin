@@ -1,4 +1,3 @@
-import { syntaxTree } from "@codemirror/language";
 import {
   Extension,
   RangeSetBuilder,
@@ -13,9 +12,9 @@ import {
   DecorationSet,
   EditorView,
 } from "@codemirror/view";
-import ExpressionInterpreter from "ExpressionInterpreter";
-import { Label } from "Label";
-import { ModelvolLabelWidget, ModevolLabelActiveWidget, ModevolTitleActiveWidget } from "ModevolWidget";
+import ExpressionInterpreter from "src/ExpressionInterpreter";
+import { Label } from "./Label";
+import { ModelvolLabelWidget, ModevolLabelActiveWidget, ModevolTitleActiveWidget } from "src/ModevolWidget";
 
 
 
@@ -70,7 +69,7 @@ function getDecoration(doc: Text, selection?: EditorSelection) {
   return builder.finish();
 }
 export const labelField = StateField.define<DecorationSet>({
-  create(state): DecorationSet {
+  create(state: { doc: any; }): DecorationSet {
     return getDecoration(state.doc);
   },
   update(oldState: DecorationSet, transaction: Transaction): DecorationSet {
