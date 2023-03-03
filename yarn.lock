@@ -218,7 +218,7 @@ builtin-modules@3.3.0:
   version "3.3.0"
   resolved "https://registry.npmmirror.com/builtin-modules/-/builtin-modules-3.3.0.tgz#cae62812b89801e9656336e46223e030386be7b6"
 
-codemirror@^5.65.12:
+codemirror@^5.65.0:
   version "5.65.12"
   resolved "https://registry.npmmirror.com/codemirror/-/codemirror-5.65.12.tgz#294fdf097d10ac5b56a9e011a91eff252afc73ae"
 

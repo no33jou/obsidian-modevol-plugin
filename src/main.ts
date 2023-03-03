@@ -1,9 +1,15 @@
-
 import * as CodeMirror from 'codemirror';
-import { App, Editor, MarkdownFileInfo, MarkdownPostProcessorContext, MarkdownView, Plugin } from 'obsidian';
+import { Editor, MarkdownEditView, MarkdownFileInfo, MarkdownPostProcessorContext, MarkdownRenderer, MarkdownSourceView, MarkdownView, Plugin } from 'obsidian';
+import { Interface } from 'readline';
 import { labelField, labels } from 'src/StateField';
+import { ModevolLabelRender } from './ModevolWidget';
 let labelStatusBar:HTMLElement| null = null
+interface SourceViewP{
+	editor:CodeMirror.Editor
+}
 export default class ModevolPlugin extends Plugin {
+
+
 	async onload() {
 		// 添加底部状态栏 
 		const item = this.addStatusBarItem()
@@ -12,32 +18,8 @@ export default class ModevolPlugin extends Plugin {
 		this.registerEvent(this.app.workspace.on('editor-change', this.editorChange))
 		this.registerEditorExtension([labelField])
 		this.registerMarkdownPostProcessor(MarkdownPostProcessor)
-		
-		this.registerCodeMirror(this.getModeNameFromCodeMirror)
-		
-		this.app.workspace.on('layout-change', () => {
-			
-			console.log('layout-change')
-		  });
-
-		CodeMirror.extendMode('markdown',{
-			token(stream, state) {
-				console.log(stream)
-				console.log(state)
-			   return null 
-			},
-			startState() {
-				
-			},
-		});
-		
 	}
-	getModeNameFromCodeMirror(cm:CodeMirror.Editor){
-		console.log(`codemirror`)
-		console.log(cm)
-		const mode = cm.getMode()
-		console.log(mode)
-	}
+	
 	onunload() {
 
 	}
@@ -94,37 +76,21 @@ function MarkdownPostProcessor(element: HTMLElement, context: MarkdownPostProces
 	for (let index = 0; index < tags.length; index++) {
 		const tag = tags.item(index)
 		let pr = tag.previousSibling
-		let next = tag.nextSibling
-		if (pr != null && pr.doc && pr.textContent != '\n') {
+		let nextNode = tag.nextSibling
+		console.log(pr?.nodeValue)
+		if (pr && !pr.nodeValue?.endsWith('\n')) {
 			continue
 		}
+		if(!nextNode) return
+		
 		switch (tag.textContent) {
 			case '#d':
-				tag.className = ' mv-label mv-label-d'
-				tag.textContent = '描述'
-				break
 			case '#e':
-				tag.className = ' mv-label mv-label-e'
-				tag.textContent = '例子'
-				break
 			case '#v':
-				tag.className = ' mv-label mv-label-v'
-				tag.textContent = '验证'
-				break
 			case '#t':
-				tag.className = ' mv-label mv-label-t'
-				tag.textContent = '迁移'
-				break
 			case '#c':
-				tag.className = ' mv-label mv-label-c'
-				if (!next) break;
-				let contentList = next.textContent?.trim().split(' ')
-				if (contentList && contentList?.length > 0) {
-					let tagName = contentList[0];
-					tag.textContent = tagName;
-					contentList = contentList.slice(1)
-					next.textContent = ' ' + contentList.join(' ')
-				}
+				let render = new ModevolLabelRender(tag as HTMLElement,nextNode,tag.nextElementSibling)
+				context.addChild(render)
 				break;
 			default:
 				break;
