@@ -1,4 +1,3 @@
-
 export class Label {
     // 类型
     type: string;
@@ -12,7 +11,10 @@ export class Label {
     title:string | undefined;
     /* 关联 */
     relation: string | undefined;
-
+    // 位置
+    pos: number
+    // 行
+    line: number
     constructor() {
     }
 }

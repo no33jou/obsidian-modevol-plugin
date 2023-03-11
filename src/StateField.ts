@@ -14,12 +14,12 @@ import {
 } from "@codemirror/view";
 import ExpressionInterpreter from "src/ExpressionInterpreter";
 import { Label } from "./Label";
-import { ModelvolLabelWidget, ModevolLabelActiveWidget, ModevolTitleActiveWidget } from "src/ModevolWidget";
+import { ModelvolLabelWidget } from "src/ModevolWidget";
+import { store } from "./store";
 
 
 
 let interpreter = new ExpressionInterpreter()
-export var labels:Label[] = []
 
 function getDecoration(doc: Text, selection?: EditorSelection) {
   const builder = new RangeSetBuilder<Decoration>();
@@ -28,32 +28,33 @@ function getDecoration(doc: Text, selection?: EditorSelection) {
   let select = selection?.main
   let selectFrom = select ? select.from : 0
   let selectTo = select ? select.from : 0
+  let lineNum = 0
   for (let line of doc.toJSON()) {
     let regMatchL = ExpressionInterpreter.tag_reg.exec(line)
     if (regMatchL == null) {
       pos += line.length + 1;
+      lineNum ++;
       continue;
     }
     let label = interpreter.getLabel(regMatchL)
     if (label == undefined) {
       pos += line.length + 1
+      lineNum ++;
       continue
     }
+    label.pos = pos
+    label.line = lineNum
     list.push(label)
     let from = pos
     let to = label.type == 'c' ? from + 3 + label.tagName.length : from + 2
     let isSelect = selectFrom > pos - 1 && selectTo < pos + line.length + 1;
     if (label.type == 'c' && isSelect) {
       let tagMark = Decoration.mark({class:' mv-label-active'})
-      // let tagReplace = Decoration.replace({
-      //   widget: new ModevolLabelActiveWidget(label),
-      // })
+     
       builder.add(from, to, tagMark)
-      // let contentRe = Decoration.replace({
-      //   widget:new ModevolTitleActiveWidget(label)
-      // })
-      // builder.add(to,pos + line.length,contentRe)
+      
       pos += line.length + 1
+      lineNum ++;
       continue
     }
 
@@ -64,8 +65,9 @@ function getDecoration(doc: Text, selection?: EditorSelection) {
     builder.add(from, to, replace)
 
     pos += line.length + 1
+    lineNum ++;
   }
-  labels = list
+  store.labels = list
   return builder.finish();
 }
 export const labelField = StateField.define<DecorationSet>({

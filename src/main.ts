@@ -1,26 +1,77 @@
 import * as CodeMirror from 'codemirror';
-import { Editor, MarkdownEditView, MarkdownFileInfo, MarkdownPostProcessorContext, MarkdownRenderer, MarkdownSourceView, MarkdownView, Plugin } from 'obsidian';
-import { Interface } from 'readline';
-import { labelField, labels } from 'src/StateField';
+import { App, debounce, Editor, MarkdownFileInfo, MarkdownPostProcessorContext, MarkdownView, Plugin, WorkspaceLeaf } from 'obsidian';
+import { labelField } from 'src/StateField';
 import { ModevolLabelRender } from './ModevolWidget';
+import { OutlineView, VIEW_TYPE } from './OutlineView';
+import { store } from './store';
 let labelStatusBar:HTMLElement| null = null
 interface SourceViewP{
 	editor:CodeMirror.Editor
 }
 export default class ModevolPlugin extends Plugin {
-
-
+	markdownView:MarkdownView
 	async onload() {
-		// 添加底部状态栏 
-		const item = this.addStatusBarItem()
-		labelStatusBar = item.createSpan({text:'Modevol'});
-
-		this.registerEvent(this.app.workspace.on('editor-change', this.editorChange))
-		this.registerEditorExtension([labelField])
-		this.registerMarkdownPostProcessor(MarkdownPostProcessor)
+		
+		this.initStore()
+		this.registerV()
+		this.registerListenter()
+		this.registerExt()
+		this.registerCommend()
 	}
 	
 	onunload() {
+		
+		this.app.workspace.detachLeavesOfType(VIEW_TYPE);
+	}
+	initStore(){
+		// store.plugin = this
+		store.labels = []
+		store.headings = []
+	}
+	registerV(){
+		const item = this.addStatusBarItem()
+		labelStatusBar = item.createSpan({text:'Modevol'});
+
+		this.registerView(VIEW_TYPE,(leaf: WorkspaceLeaf) => new OutlineView(leaf, this))
+	}
+	registerListenter(){
+		this.registerEvent(this.app.workspace.on('editor-change', debounce(this.editorChange,300)))
+		this.registerEvent(this.app.workspace.on('layout-change',()=>{
+			const file = this.app.workspace.getActiveFile()
+			if (!file) return
+			const cache = this.app.metadataCache.getFileCache(file)
+			if (!cache)return
+			const headers = cache.headings
+			store.headings = headers?headers:[]
+		}))
+
+		this.registerEvent(this.app.workspace.on('active-leaf-change',()=>{
+			let view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (view) {
+				// 保证第一次获取标题信息时，也能正常展开到默认层级
+				if (!this.markdownView) {
+					this.markdownView = view;
+					return;
+				}
+				if (view == this.markdownView){
+					return
+				}
+				this.markdownView = view;
+			}
+		}))
+	}
+	registerExt(){
+		this.registerEditorExtension([labelField])
+		this.registerMarkdownPostProcessor(MarkdownPostProcessor)
+	}
+	registerCommend(){
+		this.addCommand({
+			id: "modevol-outline",
+			name: "Modevol Outline",
+			callback: () => {
+				this.activateView();
+			}
+		});
 
 	}
 	editorChange(editor: Editor, info: MarkdownView | MarkdownFileInfo) {
@@ -29,7 +80,7 @@ export default class ModevolPlugin extends Plugin {
 		let eNum = 0
 		let tNum = 0
 		let vNum = 0
-		for (const label of labels) {
+		for (const label of store.labels) {
 			switch (label.type) {
 				case 'd':
 					dNum++;
@@ -69,6 +120,18 @@ export default class ModevolPlugin extends Plugin {
 			labelStatusBar.textContent = content
 		}
 	}
+	async activateView() {
+		if (this.app.workspace.getLeavesOfType(VIEW_TYPE).length === 0) {
+			await this.app.workspace.getRightLeaf(false).setViewState({
+				type: VIEW_TYPE,
+				active: true,
+			});
+		}
+		this.app.workspace.revealLeaf(
+			this.app.workspace.getLeavesOfType(VIEW_TYPE)[0]
+		);
+	}
+
 }
 
 function MarkdownPostProcessor(element: HTMLElement, context: MarkdownPostProcessorContext): Promise<any> | void {
@@ -77,7 +140,6 @@ function MarkdownPostProcessor(element: HTMLElement, context: MarkdownPostProces
 		const tag = tags.item(index)
 		let pr = tag.previousSibling
 		let nextNode = tag.nextSibling
-		console.log(pr?.nodeValue)
 		if (pr && !pr.nodeValue?.endsWith('\n')) {
 			continue
 		}

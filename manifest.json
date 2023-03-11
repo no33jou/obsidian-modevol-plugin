@@ -1,11 +1,10 @@
 {
 	"id": "obsidian-modevol-plugin",
 	"name": "Modevol Plugin",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"minAppVersion": "0.15.0",
 	"description": "This is a modevol plugin for Obsidian. This plugin for fit modevol style.",
 	"author": "yao",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": true
+	"authorUrl": "https://github.com/no33jou/obsidian-modevol-plugin",
+	"isDesktopOnly":false
 }

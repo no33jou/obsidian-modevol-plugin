@@ -91,7 +91,7 @@ export class ModevolLabelRender extends MarkdownRenderChild {
     if (!this.nextNode.nodeValue) return
     let nodeList = this.nextNode.nodeValue.split('\n')
     nodeList = nodeList.filter(value=>{return value != ''})
-    let titleContent = nodeList.first()
+    const titleContent = nodeList.first()
     if (titleContent == undefined) return
     nodeList.remove(titleContent)
     this.text = titleContent
