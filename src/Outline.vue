@@ -1,11 +1,14 @@
 <template>
-    <n-tree block-line :data="treeData" :render-prefix="prefixRender" :on-update:selected-keys="selectItem" />
+    <n-config-provider :theme="theme">
+        <n-tree block-line :data="treeData" :render-prefix="prefixRender" :on-update:selected-keys="selectItem" />
+    </n-config-provider>
+    
 </template>
 
 <script lang="ts">
 
-import { da } from 'date-fns/locale';
-import { NTree, TreeOption } from 'naive-ui';
+
+import { NTree, TreeOption , NConfigProvider, darkTheme} from 'naive-ui';
 import { HeadingCache, MarkdownView } from 'obsidian';
 import { defineComponent, h } from 'vue';
 import { Label } from './Label';
@@ -18,8 +21,17 @@ export default defineComponent({
     },
     components: {
         NTree,
+        NConfigProvider
     },
     computed: {
+        theme(){
+            console.log(store.darkTheme)
+            if (store.darkTheme){
+                return  darkTheme
+            }
+            return null
+            
+        },
         treeData() {
             const root: TreeOption = { children: [] };
             const stack = [{ node: root, level: -1, pos: -1 }];

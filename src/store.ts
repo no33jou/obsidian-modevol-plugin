@@ -1,7 +1,6 @@
 import { HeadingCache, TFile } from 'obsidian'
 import { Label } from './Label'
 import { reactive } from 'vue'
-import ModevolPlugin from './main'
 
 
 export const store = reactive({
@@ -11,7 +10,7 @@ export const store = reactive({
 	/** 标题 
 		 * @type {HeadingCache[]} */
 	headings: [] as HeadingCache[],
-	/** 插件 
-		 * @type {ModevolPlugin|undefined} */
-	// plugin: undefined as ModevolPlugin | undefined,
+	/** 是否暗黑主题 
+		 * @type {boolean} */
+	darkTheme: false
 })

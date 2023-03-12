@@ -3,7 +3,6 @@ import {
   RangeSetBuilder,
   StateField,
   Transaction,
-  StateEffect,
   Text,
   EditorSelection
 } from "@codemirror/state";

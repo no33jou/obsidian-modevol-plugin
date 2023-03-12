@@ -5,9 +5,6 @@ import { ModevolLabelRender } from './ModevolWidget';
 import { OutlineView, VIEW_TYPE } from './OutlineView';
 import { store } from './store';
 let labelStatusBar:HTMLElement| null = null
-interface SourceViewP{
-	editor:CodeMirror.Editor
-}
 export default class ModevolPlugin extends Plugin {
 	markdownView:MarkdownView
 	async onload() {
@@ -24,7 +21,7 @@ export default class ModevolPlugin extends Plugin {
 		this.app.workspace.detachLeavesOfType(VIEW_TYPE);
 	}
 	initStore(){
-		// store.plugin = this
+		store.darkTheme = document.body.hasClass("theme-dark");
 		store.labels = []
 		store.headings = []
 	}
@@ -36,13 +33,11 @@ export default class ModevolPlugin extends Plugin {
 	}
 	registerListenter(){
 		this.registerEvent(this.app.workspace.on('editor-change', debounce(this.editorChange,300)))
+		this.registerEvent(this.app.metadataCache.on('changed',()=>{
+			this.refreshHeader()
+		}))
 		this.registerEvent(this.app.workspace.on('layout-change',()=>{
-			const file = this.app.workspace.getActiveFile()
-			if (!file) return
-			const cache = this.app.metadataCache.getFileCache(file)
-			if (!cache)return
-			const headers = cache.headings
-			store.headings = headers?headers:[]
+			this._refreshHeader()
 		}))
 
 		this.registerEvent(this.app.workspace.on('active-leaf-change',()=>{
@@ -59,6 +54,9 @@ export default class ModevolPlugin extends Plugin {
 				this.markdownView = view;
 			}
 		}))
+		this.registerEvent(this.app.workspace.on("css-change", () => {
+			store.darkTheme = document.body.hasClass("theme-dark");
+		}));
 	}
 	registerExt(){
 		this.registerEditorExtension([labelField])
@@ -131,7 +129,15 @@ export default class ModevolPlugin extends Plugin {
 			this.app.workspace.getLeavesOfType(VIEW_TYPE)[0]
 		);
 	}
-
+	refreshHeader = debounce(this._refreshHeader,300)
+	_refreshHeader(){
+		const file = this.app.workspace.getActiveFile()
+			if (!file) return
+			const cache = this.app.metadataCache.getFileCache(file)
+			if (!cache)return
+			const headers = cache.headings
+			store.headings = headers?headers:[]
+	}
 }
 
 function MarkdownPostProcessor(element: HTMLElement, context: MarkdownPostProcessorContext): Promise<any> | void {
