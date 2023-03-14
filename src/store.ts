@@ -4,6 +4,9 @@ import { reactive } from 'vue'
 
 
 export const store = reactive({
+	/** 文件base name 
+		 * @type {string} */
+	fileName:'',
 	/** 标注 
 		 * @type {Label[]} */
 	labels: [] as Label[],

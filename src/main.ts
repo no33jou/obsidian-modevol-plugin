@@ -135,6 +135,7 @@ export default class ModevolPlugin extends Plugin {
 			if (!file) return
 			const cache = this.app.metadataCache.getFileCache(file)
 			if (!cache)return
+			store.fileName = file.basename
 			const headers = cache.headings
 			store.headings = headers?headers:[]
 	}

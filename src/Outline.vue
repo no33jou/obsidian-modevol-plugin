@@ -35,10 +35,20 @@ export default defineComponent({
         treeData() {
             const root: TreeOption = { children: [] };
             const stack = [{ node: root, level: -1, pos: -1 }];
+            let headings = store.headings
             let headIndex = 0
             let labelIndex = 0
-            for (; headIndex < store.headings.length; headIndex++) {
-                const header = store.headings[headIndex];
+            if (headings.length == 0) {
+                const fileHeader:HeadingCache = {
+                  heading: store.fileName,
+                  level: 0,
+                  position: {start:{line:0,col:0,offset:0},
+                            end:{line:0,col:0,offset:0}}
+                }
+                headings = [fileHeader]
+            }
+            for (; headIndex < headings.length; headIndex++) {
+                const header = headings[headIndex];
                 const leaf: TreeOption = { label: header.heading, key: '#h' + header.level + ' ' + header.heading + headIndex, data:header }
 
                 let node = stack.last()
@@ -56,8 +66,8 @@ export default defineComponent({
                 stack.push({ node: leaf, level: header.level, pos: header.position.start.offset })
 
                 let nextheaderPos = 9999999
-                if (headIndex + 1 < store.headings.length) {
-                    const nextHeader = store.headings[headIndex + 1]
+                if (headIndex + 1 < headings.length) {
+                    const nextHeader = headings[headIndex + 1]
                     nextheaderPos = nextHeader.position.start.offset
                 }
                 while (labelIndex < store.labels.length) {
