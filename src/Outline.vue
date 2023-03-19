@@ -1,99 +1,123 @@
 <template>
     <n-config-provider :theme="theme">
-        <n-tree block-line :data="treeData" :render-prefix="prefixRender" :on-update:selected-keys="selectItem" />
+        <NSlider v-model:value="slideValue" :marks="marks" step="mark" :min="1" :max="max" style="margin:4px 0;" />
+        <n-tree block-line :data="treeData" :render-prefix="prefixRender" :on-update:selected-keys="selectItem"
+            :on-update:expanded-keys="expandedKey" :expanded-keys="keys" />
     </n-config-provider>
-    
 </template>
 
 <script lang="ts">
 
-
-import { NTree, TreeOption , NConfigProvider, darkTheme} from 'naive-ui';
-import { HeadingCache, MarkdownView } from 'obsidian';
+import { NTree, TreeOption, NConfigProvider, darkTheme, NSlider } from 'naive-ui';
+import { HeadingCache } from 'obsidian';
 import { defineComponent, h } from 'vue';
 import { Label } from './Label';
 import ModevolPlugin from './main';
 import { store } from './store'
+type Option = TreeOption & {data:Label|HeadingCache,level:number,deep:number|undefined,offset:number}
 export default defineComponent({
-    inject:['plugin'],
+    inject: ['plugin'],
+    data() {
+        return {
+            slideValue: 0,
+            marks: { 0: '', 1: "", 2: '', 3: '', 4: '', 5: '', 6: '' },
+            max: 0,
+            keys:[] as string[],
+            items:[] as Option[]
+        }
+    },
     mounted: () => {
 
     },
     components: {
         NTree,
-        NConfigProvider
+        NConfigProvider,
+        NSlider
     },
     computed: {
-        theme(){
-            console.log(store.darkTheme)
-            if (store.darkTheme){
-                return  darkTheme
+        theme() {
+            if (store.darkTheme) {
+                return darkTheme
             }
             return null
-            
         },
         treeData() {
-            const root: TreeOption = { children: [] };
-            const stack = [{ node: root, level: -1, pos: -1 }];
-            let headings = store.headings
-            let headIndex = 0
-            let labelIndex = 0
-            if (headings.length == 0) {
-                const fileHeader:HeadingCache = {
-                  heading: store.fileName,
-                  level: 0,
-                  position: {start:{line:0,col:0,offset:0},
-                            end:{line:0,col:0,offset:0}}
-                }
-                headings = [fileHeader]
-            }
-            for (; headIndex < headings.length; headIndex++) {
-                const header = headings[headIndex];
-                const leaf: TreeOption = { label: header.heading, key: '#h' + header.level + ' ' + header.heading + headIndex, data:header }
+            let root: Option[] = [];
+            let stack:{node:Option,level:number}[] = [];
+            let maxDeep = 0
+            let items: Option[] = store.headings.map((h)=>{
+                return {label:h.heading,
+                    offset:h.position.start.offset,
+                    level:h.level,
+                    data:h}
+            })
+            const labels:Option[] = store.labels.map((l)=>{
+                return {label:l.title,
+                    offset:l.pos,
+                    level:7,
+                    data:l}
+            })
 
+            items = items.concat(labels)
+            items.sort((a,b)=>{
+                let aOffset = a.offset as number
+                let bOffset = b.offset as number
+                return aOffset - bOffset
+            })
+            this.items = items
+            for (let index = 0; index < items.length; index++) {
+                const item = items[index];
+                const level = item.level as number
+                const offset = item.offset as number
+                
                 let node = stack.last()
-                if (!node) return undefined
-                while (node.level >= header.level) {
+                if (node == undefined) {
+                    stack = [{node:item,level}]
+                    node = stack.last()
+                }
+                if (node == undefined)return undefined
+                while (node.node == item || node.level >= level) {
                     stack.pop()
                     node = stack.last()
-                    if (!node) return undefined
-                }
-
-                let child = node.node.children
-                if (!child) child = []
-                child.push(leaf)
-                node.node.children = child
-                stack.push({ node: leaf, level: header.level, pos: header.position.start.offset })
-
-                let nextheaderPos = 9999999
-                if (headIndex + 1 < headings.length) {
-                    const nextHeader = headings[headIndex + 1]
-                    nextheaderPos = nextHeader.position.start.offset
-                }
-                while (labelIndex < store.labels.length) {
-                    const label = store.labels[labelIndex]
-                    if (label.pos > nextheaderPos) break
-                    const labelLeaf: TreeOption = {
-                        label: label.title,
-                        key: label.type + ' ' + label.tagName + label.title + labelIndex,
-                        data: label
+                    if (!node) {
+                        stack = [{node:item,level}]
+                        node = stack.last()
+                        break;
                     }
-                    if (!leaf.children) leaf.children = []
-                    leaf.children.push(labelLeaf)
-                    labelIndex++
                 }
+
+                const deep = stack.length
+                const key = level+' '+item.label+' '+deep
+                item.key = key
+                item.deep = deep
+                // 记录最大深度
+                if(maxDeep < deep) maxDeep = deep
+
+                if (item == node?.node){
+                    root = root.concat(item)
+                    continue;
+                }
+
+                stack.push({node:item,level})
+                let child = node?.node.children
+                if (!child) child = []
+                child.push(item)
+                let i = node?.node 
+                if (!i)return undefined
+                i.children = child
             }
-            return root.children
+            this.max = maxDeep
+            return root
         }
     },
     methods: {
-        prefixRender(info: { option: TreeOption, checked: boolean, selected: boolean }) {
+        prefixRender(info: { option: Option, checked: boolean, selected: boolean }) {
             const data = info.option['data'] as Label | undefined
-            if (!((data instanceof Label)))return undefined
+            if (!((data instanceof Label))) return undefined
             return renderLabelIcon(data)
         },
-        selectItem(value: Array<string & number>, option: Array<TreeOption | null>, meta: {
-            node: TreeOption | null;
+        selectItem(value: Array<string & number>, option: Array<Option | null>, meta: {
+            node: Option | null;
             action: 'select' | 'unselect';
         }) {
             if (value.length === 0) return;
@@ -102,29 +126,53 @@ export default defineComponent({
             const data = op['data']
             const plugin = this.plugin as ModevolPlugin
             const view = plugin.markdownView
-            if (!view)return
+            if (!view) return
             if (!data) return
             let line = 0
-            if(data instanceof Label ){
-               line = data.line
-               console.log(line)
-            }else{
+            if (data instanceof Label) {
+                line = data.line
+                console.log(line)
+            } else {
                 const header = data as HeadingCache
                 line = header.position.start.line
             }
-            
+
             view.currentMode.applyScroll(line)
-            if(view.getMode() == 'source'){
-                
-            }else{
+            if (view.getMode() == 'source') {
+
+            } else {
                 // view.previewMode.
 
             }
-            
+
             // view.setEphemeralState({ line });
             // setTimeout(() => { view.setEphemeralState({ line }); }, 100);
+        },
+        expandedKey(keys: Array<string | number>, 
+            option: Array<Option | null>, 
+                meta: { node: Option | null, 
+                    action: 'expand' | 'collapse' | 'filter' }) {
+            this.keys = keys
+        },
+        expandLevel(level:number){
+            console.log(this.items)
+            let keys = this.items.filter((k:Option)=>{
+                let deep = k.deep
+                console.log(k)
+                if (deep == undefined) return false
+                return deep < level
+            }).map((o:Option)=>{
+                return o.key
+            })
+            console.log(keys)
+           return keys;
         }
     },
+    watch: {
+        slideValue(newV:number, oldV) {
+            this.keys = this.expandLevel(newV)
+        }
+    }
 })
 function renderLabelIcon(label: Label) {
     if (label.type == 'c') {
