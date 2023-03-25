@@ -108,7 +108,7 @@ export default defineComponent({
             }
             this.max = maxDeep
             return root
-        }
+        },
     },
     methods: {
         prefixRender(info: { option: Option, checked: boolean, selected: boolean }) {

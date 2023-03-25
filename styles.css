@@ -104,6 +104,21 @@ a.mv-label{
     font-size: 0.8em;
 }
 
+.mv-pre-label.mv-d{
+    color: var(--modevol-d-color);
+}
+.mv-pre-label.mv-e{
+    color: var(--modevol-e-color);
+}
+.mv-pre-label.mv-t{
+    color: var(--modevol-t-color);
+}
+.mv-pre-label.mv-v{
+    color: var(--modevol-v-color);
+}
+.mv-pre-label.mv-c{
+    color: var(--modevol-c-color);
+}
 /* header  */
 
 /* .markdown-preview-view h1::before{
