@@ -131,7 +131,7 @@ export default defineComponent({
             let line = 0
             if (data instanceof Label) {
                 line = data.line
-                console.log(line)
+
             } else {
                 const header = data as HeadingCache
                 line = header.position.start.line
@@ -155,16 +155,13 @@ export default defineComponent({
             this.keys = keys
         },
         expandLevel(level:number){
-            console.log(this.items)
             let keys = this.items.filter((k:Option)=>{
                 let deep = k.deep
-                console.log(k)
                 if (deep == undefined) return false
                 return deep < level
             }).map((o:Option)=>{
                 return o.key
             })
-            console.log(keys)
            return keys;
         }
     },

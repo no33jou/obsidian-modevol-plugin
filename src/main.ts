@@ -37,10 +37,15 @@ export default class ModevolPlugin extends Plugin {
 			this.refreshHeader()
 		}))
 		this.registerEvent(this.app.workspace.on('layout-change',()=>{
+			// console.log('layout-change')
 			this._refreshHeader()
 		}))
 
 		this.registerEvent(this.app.workspace.on('active-leaf-change',()=>{
+			// console.log('active-leaf-change')
+
+			this._refreshHeader()
+
 			let view = this.app.workspace.getActiveViewOfType(MarkdownView);
 			if (view) {
 				// 保证第一次获取标题信息时，也能正常展开到默认层级
