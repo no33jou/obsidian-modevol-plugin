@@ -1,4 +1,4 @@
-import { HeadingCache, TFile } from 'obsidian'
+import { HeadingCache } from 'obsidian'
 import { Label } from './Label'
 import { reactive } from 'vue'
 
@@ -15,5 +15,8 @@ export const store = reactive({
 	headings: [] as HeadingCache[],
 	/** 是否暗黑主题 
 		 * @type {boolean} */
-	darkTheme: false
+	darkTheme: false,
+	/** 自定义标签 key 集合
+		 * @type {Set<string>} */
+	customKeys: new Set<string>() as Set<string>
 })

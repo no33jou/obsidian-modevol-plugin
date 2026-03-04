@@ -172,7 +172,7 @@ export default defineComponent({
     }
 })
 function renderLabelIcon(label: Label) {
-    if (label.type == 'c') {
+    if (store.customKeys.has(label.type)) {
         return renderCustomIcon(label.tagName)
     }
     return renderNormalIcon(label.type)

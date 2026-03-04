@@ -6,7 +6,7 @@ import Outline from './Outline.vue';
 
 export const VIEW_TYPE = 'modevol-outline';
 export class OutlineView extends ItemView {
-    vueApp: App;
+    vueApp: App | null = null;
     plugin: ModevolPlugin;
     constructor(leaf: WorkspaceLeaf, plugin: ModevolPlugin) {
         super(leaf);
@@ -39,10 +39,11 @@ export class OutlineView extends ItemView {
     }
 
     async onClose() {
-        
-    }
-    onunload(): void {
-        this.vueApp.unmount();
+        if (this.vueApp) {
+            this.vueApp.unmount();
+            this.vueApp = null;
+        }
+        await super.onClose();
     }
 
 }

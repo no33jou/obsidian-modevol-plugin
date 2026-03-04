@@ -4,7 +4,8 @@ import {
   StateField,
   Transaction,
   Text,
-  EditorSelection
+  EditorSelection,
+  EditorState,
 } from "@codemirror/state";
 import {
   Decoration,
@@ -15,62 +16,73 @@ import ExpressionInterpreter from "src/ExpressionInterpreter";
 import { Label } from "./Label";
 import { ModelvolLabelWidget } from "src/ModevolWidget";
 import { store } from "./store";
+import { LabelConfig } from "./settings";
 
+let interpreter: ExpressionInterpreter | null = null;
 
+export function setLabelConfigs(configs: LabelConfig[]) {
+  interpreter = new ExpressionInterpreter(configs);
+}
 
-let interpreter = new ExpressionInterpreter()
+export function __getInterpreterForTest(): ExpressionInterpreter | null {
+  return interpreter;
+}
 
 function getDecoration(doc: Text, selection?: EditorSelection) {
   const builder = new RangeSetBuilder<Decoration>();
-  var list:Label[] = []
+  if (!interpreter) {
+    interpreter = new ExpressionInterpreter([]);
+  }
+  const list: Label[] = [];
   let pos = 0;
-  let select = selection?.main
-  let selectFrom = select ? select.from : 0
-  let selectTo = select ? select.from : 0
-  let lineNum = 0
-  for (let line of doc.toJSON()) {
-    let regMatchL = ExpressionInterpreter.tag_reg.exec(line)
+  const select = selection?.main;
+  const selectFrom = select ? select.from : 0;
+  const selectTo = select ? select.to : 0;
+  let lineNum = 0;
+  for (const line of doc.toJSON()) {
+    const regMatchL = interpreter.matchLine(line);
     if (regMatchL == null) {
       pos += line.length + 1;
-      lineNum ++;
+      lineNum++;
       continue;
     }
-    let label = interpreter.getLabel(regMatchL)
+    const label = interpreter.getLabel(regMatchL)
     if (label == undefined) {
       pos += line.length + 1
-      lineNum ++;
+      lineNum++;
       continue
     }
     label.pos = pos
     label.line = lineNum
     list.push(label)
-    let from = pos
-    let to = label.type == 'c' ? from + 3 + label.tagName.length : from + 2
-    let isSelect = selectFrom > pos - 1 && selectTo < pos + line.length + 1;
-    if (label.type == 'c' && isSelect) {
-      let tagMark = Decoration.mark({class:' mv-label-active'})
-     
+    const from = pos
+    const isCustomType = interpreter.isCustomKey(label.type);
+    const to = isCustomType ? from + 3 + label.tagName.length : from + 2
+    const isSelect = selectFrom > pos - 1 && selectTo < pos + line.length + 1;
+    if (isCustomType && isSelect) {
+      const tagMark = Decoration.mark({ class: ' mv-label-active' })
+
       builder.add(from, to, tagMark)
-      
+
       pos += line.length + 1
-      lineNum ++;
+      lineNum++;
       continue
     }
 
-    let replace = Decoration.replace({
+    const replace = Decoration.replace({
       widget: new ModelvolLabelWidget(label),
     })
 
     builder.add(from, to, replace)
 
     pos += line.length + 1
-    lineNum ++;
+    lineNum++;
   }
   store.labels = list
   return builder.finish();
 }
 export const labelField = StateField.define<DecorationSet>({
-  create(state: { doc: any; }): DecorationSet {
+  create(state: EditorState): DecorationSet {
     return getDecoration(state.doc);
   },
   update(oldState: DecorationSet, transaction: Transaction): DecorationSet {
